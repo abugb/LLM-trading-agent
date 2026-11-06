@@ -108,6 +108,6 @@ The backtest is useful for inspecting the agent's behavior and exercising the tr
 | Task 2 | Price history, RSI, MACD, quote retrieval, and combined market context. |
 | Task 3 | Persistent trading memory, keyword retrieval, and trade reflections. |
 | Task 4 | Training-data preparation, LoRA fine-tuning, and model comparisons. |
-| Task 5 | The unfinished loop intended to connect research, decisions, orders, and reflection. |
+| Task 5 | The trading loop connecting research, decisions, order submission, and reflection. |
 
 Downloaded data, training examples, model adapters, and logs can all live under `CACHE_DIR`. They serve different purposes: downloaded data avoids repeated requests, training examples support fine-tuning, memory stores lessons, and logs record what happened. Despite the folder's name, it contains more than disposable cached downloads.
