@@ -2,7 +2,7 @@
 
 This project is a notebook-based LLM trading-agent assignment. The main implementation is `main.ipynb`; `AGENT_OVERVIEW.md` provides a readable overview of its workflow and current limitations. Inspect the notebook's code before relying on its prose: some assignment instructions and TODO labels may be outdated.
 
-The notebook combines Alpaca trading and news, yfinance historical prices and locally calculated RSI and MACD, Alpaca quotes, a tool-calling model, backtesting, memory, optional fine-tuning, and an implemented repeating trading loop. The loop can submit orders; its presence does not establish that it has been fully validated. Treat backtest results cautiously: the current research tools can access data newer than the simulated date, and the simulation uses daily closing prices for fills.
+The notebook combines Alpaca trading and news, yfinance historical prices and locally calculated RSI and MACD, Alpaca quotes, a tool-calling model, backtesting, memory, optional fine-tuning, and an implemented repeating trading loop. The loop can submit orders; its presence does not establish that it has been fully validated. The backtest restricts research to a simulated decision time after the close and fills at the next session's open. Treat its results cautiously: adjusted data, model pretraining, execution assumptions, and overlapping training and evaluation periods remain limitations.
 
 ## Working on the notebook
 

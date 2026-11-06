@@ -38,7 +38,7 @@ The current prompt strongly encourages activity: it tells the model to use a too
 | Recent price history | yfinance | Shows daily opening, high, low, closing prices, and volume. |
 | RSI | Calculated locally from yfinance prices | Describes the balance of recent upward and downward price movements. |
 | MACD | Calculated locally from yfinance prices | Compares shorter and longer price trends. |
-| Quote summary | Alpaca | Provides price, change, and volume. |
+| Quote summary | Alpaca live; yfinance in backtests | Provides price, change, and volume. |
 | Historical prices for backtests | yfinance | Supplies prices for replaying past trading days. |
 
 The news tool does not supply a separate sentiment score; the model interprets the text itself. RSI and MACD are additional evidence for its decision, rather than fixed rules that automatically trigger orders.
@@ -47,14 +47,16 @@ Both technical indicators (RSI and MACD) are calculated locally from yfinance pr
 
 ## What happens to a proposed trade
 
-The decision validator checks basic requirements, such as whether the stock is on the allowed list and whether the share count is a positive integer within the per-trade limit. Invalid decisions may be discarded or changed to holds. Accepted buy and sell decisions are normalized to market orders.
+The decision validator checks basic requirements, such as whether the stock is on the allowed list and whether the share count is a positive integer. `MAX_TRADE_VALUE` sets a $5,000 estimated value limit for each buy or sell. Quantities are reduced to whole shares that fit the limit; decisions without a usable price or where one share exceeds the limit become holds. Accepted buy and sell decisions are normalized to market orders.
 
 There are two execution paths:
 
-- **Backtesting:** a local simulated portfolio updates its cash and holdings using historical closing prices. It limits purchases to available cash and sales to shares already held.
-- **Paper trading:** the intended trading loop sends orders to Alpaca and receives an order status. The Alpaca client takes its paper-account setting from configuration.
+- **Backtesting:** a local simulated portfolio checks the trade-value limit using the decision-time historical close and checks it again at the next open. It reduces purchases to available cash and limits sales to shares already held.
+- **Paper trading:** `ALPACA_PAPER` is parsed as a boolean and defaults to paper mode when unset. The notebook refuses order submission unless the setting is true, the client points to Alpaca's paper endpoint, and that endpoint returns an authenticated account. The loop also checks that the account has not changed before each order.
 
 Validation checks the structure and basic constraints of a decision. It does not establish that the trade is a good investment or provide a complete portfolio risk strategy.
+
+For paper orders, the limit is checked again immediately before submission using a recent Alpaca snapshot; missing or stale prices prevent submission. This is an estimated value limit: market prices can move before an order fills, so the actual fill value can exceed it. Fees are not included in the estimate.
 
 ## Why the project saves a cache
 
@@ -62,9 +64,11 @@ A cache is a saved copy of downloaded data. If the program needs the same inform
 
 The current cache lives in `.cache/stock_agent` beneath the notebook kernel's working directory. Older notebook comments refer to Google Drive, but the current setup uses local storage.
 
-News is saved by date. Historical backtest prices are saved in a single file and reused for up to 24 hours. The individual price-history and indicator tools do not yet share a common price cache.
+News entries are keyed by canonical symbols, date, article limit, request mode, and the historical decision cutoff when supplied. Live queries and in-progress dates refresh after 15 minutes. Past historical entries remain cached indefinitely. News requests fetched across symbol batches must succeed in full before being saved; failed batches return available articles with warnings but skip cache writing.
 
-There are limitations: the news cache checks the date without checking which stocks were requested, and the historical-price cache checks its age without checking the requested stocks or time period. As a result, a changed request can receive an earlier request's data. Cached news also does not refresh during the day.
+Historical backtest bars are keyed by canonical symbols, requested range or period, adjustment setting, and a schema version. Entries are verified against stored parameters on cache hits and expire after 24 hours. The price-fetching logic handles empty or malformed yfinance responses and avoids saving empty data. Existing close-only cache files do not satisfy the new keys.
+
+The live price-history and indicator tools do not yet share a common price cache. During a backtest, the tools instead read the same historical data through the decision-time cutoff.
 
 ## How the agent can learn from experience
 
@@ -72,11 +76,18 @@ The project has two separate learning mechanisms.
 
 ### Memory: bringing old lessons into a new decision
 
-After a trade has had time to develop, the intended workflow compares portfolio value before and after it. The model writes a short reflection about the outcome, which is saved with a description of the original situation.
+After a trade has had time to develop, the agent reflects on the specific outcome of that trade rather than broad portfolio equity changes:
+- **Buy orders:** Evaluated at reflection time against a fresh market quote snapshot to compute mark-to-market unrealized P&L: `(reflection_quote - fill_price) * filled_qty`. The prompt explicitly instructs the model to treat this as an interim unrealized snapshot rather than finalized profit.
+- **Sell orders:** Evaluated against the position's pre-trade cost basis (`avg_entry_price`) captured before order submission to compute realized P&L: `(fill_price - cost_basis) * filled_qty`.
+- **Order tracking and fill policy:** In the trading loop (Task 5), pending trades are refreshed using `tc.get_order_by_id`. The loop follows a terminal-wait policy with bounded retries (`MAX_REFLECTION_RETRIES = 5`): open orders, including `partially_filled`, are deferred; only explicit terminal statuses are eligible for reflection. A terminal order with zero fills is discarded, while a nonterminal order still open after the retry limit is skipped without reflection.
+
+The model writes a concise reflection on the trade's execution and lesson learned, stored with structured `trade_context` fields for symbol, side, executed fill details, and price source/time when available. Alpaca market-data timestamps are recorded when supplied; yfinance fallback entries record retrieval time. The original market situation is kept for retrieval.
+
+Pending reflections are saved under `CACHE_DIR` in a file scoped to the verified paper account. Their deadlines use elapsed seconds (`REFLECTION_DELAY_LOOPS * LOOP_SECONDS`), so a later run can resume them after a kernel restart. Queue updates use atomic replacement, and an order already recorded in memory is not reflected twice after a restart. Only one loop should use a given account's queue at a time. An interruption between broker acceptance and saving the returned order ID can still leave an order without a pending reflection; check broker orders after an interrupted submission.
 
 For a later decision, a keyword-ranking method called BM25 finds similar past situations. Their reflections are included in the model's prompt. This approach is called retrieval-augmented generation, or RAG.
 
-Memory changes the information the model sees; it does not retrain the model. The storage, search, and reflection functions exist, and the decision engine accepts retrieved reflections. Task 5 connects these pieces within the repeating trading loop by queueing trades, reflecting after a delay, and retrieving top reflections for new decisions.
+Memory changes the information the model sees; it does not retrain the model. The storage, search, and reflection functions exist, and the decision engine accepts retrieved reflections. Task 5 connects these pieces within the repeating trading loop by queueing trades, tracking order fills, calculating trade-level P&L, and retrieving top reflections for new decisions. The loop also protects against unverified account state: if retrieving account state from Alpaca fails, the loop safely halts the iteration rather than fabricating an artificial balance.
 
 ### Fine-tuning: training on recorded examples
 
@@ -90,13 +101,13 @@ These labels are a rough learning signal. A change in the whole portfolio's valu
 
 ## What the backtest tells you
 
-The backtest steps through historical trading days, asks the agent for decisions, simulates fills at each day's closing prices, and tracks portfolio value. A comparison stage runs the model with its LoRA adapter disabled and enabled to compare returns and trade counts.
+The backtest uses the NYSE calendar to make decisions five minutes after each close and fills those decisions at the next trading day's open. News is limited to the decision timestamp, and the historical price, indicator, and quote tools see only completed daily bars. Buys are reduced to the affordable whole-share quantity; trades with missing opening prices are skipped. If a held stock has no closing price, the latest known price is carried forward and the valuation is flagged as estimated. Final-session decisions remain unfilled. A comparison stage runs the model with its LoRA adapter disabled and enabled to compare returns and trade counts.
 
 The current results need to be interpreted with these limitations in mind:
 
-- Historical dates are passed to the news tool, but the price and indicator tools still fetch current data. That can expose the agent to information unavailable on the simulated day.
-- Trades fill at daily closing prices without modeling transaction costs or differences between an expected price and an actual execution price.
+- Fills use adjusted yfinance opening prices without modeling transaction costs or slippage. Adjusted prices are an approximation, not a full simulation of dividends and splits.
 - The comparison period overlaps the period used to collect training examples, so it is not an independent test on unseen data.
+- The model may have learned about the historical period during pretraining, and historical data may have been revised after the fact.
 
 The backtest is useful for inspecting the agent's behavior and exercising the training pipeline. These limitations must be addressed before treating its returns as evidence of future performance.
 
