@@ -28,3 +28,11 @@ This file records changes to `main.ipynb` that depart from the original provided
 
 
  
+
+## 2026-11-05: Added Order Status Validation Before Reflection Queueing
+
+- **Affected Section**: Task 5 (`run_trading_loop` Step 7, cell `6jats7k4qsua`).
+- **What Changed**: Added an explicit check on `order_result` status and presence of an order ID before appending trades to `pending_reflections`. Excludes non-executed or failed order statuses (`rejected`, `canceled`, `expired`, `suspended`).
+- **Why It Was Necessary**: Previously, any order that did not raise an exception was queued for reflection, even if rejected or canceled by the broker. Queueing failed trades leads to invalid reflections where the model reflects on equity changes that never occurred.
+- **Effect on Expected Behavior or Grading**: Prevents false reflections from polluting the memory store. Only genuine, successfully placed orders are evaluated after the delay window.
+- **Validation**: AST syntax check confirmed valid Python syntax in the notebook cell. Verified logic paths correctly route successful orders to `pending_reflections` and skip rejected/canceled statuses with a logged notification.
