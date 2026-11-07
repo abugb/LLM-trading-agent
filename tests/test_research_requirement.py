@@ -49,6 +49,16 @@ def run_case(outputs, results=None, **kwargs):
     return result, ns, tok, model
 
 class ResearchTests(unittest.TestCase):
+    def test_tool_and_decision_prompts_share_minimal_trade_example(self):
+        trade = decision([{'symbol': 'AAPL', 'action': 'buy', 'qty': 1}])
+        result, ns, _, model = run_case([tool(), trade])
+        example = '[{"symbol":"AAPL","action":"buy","qty":1}]'
+        self.assertIn(example, ns['_build_tools_prompt']())
+        self.assertNotIn('research_ids', ns['_build_tools_prompt']())
+        self.assertIn(example, model.prompts[-1])
+        self.assertEqual(result.diagnostics['status'], 'traded')
+        self.assertEqual(result[0][0]['research_ids'], ['R1'])
+
     def test_unresearched_empty_is_failure_not_no_trade(self):
         result, _, _, model = run_case(['[]'] * 3)
         self.assertEqual(result[0], [])

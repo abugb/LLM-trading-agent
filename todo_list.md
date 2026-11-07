@@ -1,2 +1,0 @@
-refactor "focus list" - agent should have a "held positions" list and the rest should be broadly researched (i think this is a good idea?)
-Run paper trading several times to populate reflections (or populate some other way)

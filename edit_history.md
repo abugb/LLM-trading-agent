@@ -279,3 +279,9 @@ This file records changes to `main.ipynb` that depart from the original provided
 
 - **Affected section**: Initial notebook setup (cell 3). Added `--override-channels` and the public conda-forge URL to the vector dependency install after the configured Anaconda channel returned a missing-token error. Removed automatic `-y` so the solver's proposed changes can be reviewed before installation.
 - **Validation**: Verified notebook JSON and the saved command. Installation was not run; success and compatibility with the existing environment remain unverified.
+
+## 2026-11-07: Align Trade Examples in Tool and Decision Prompts
+
+- **Affected section**: Tool registry and prompt builder (cell 23, `lgzw5cfv1i3f`). Changed its final-decision example to the same concrete `symbol`, `action`, and `qty` example used by the decision-phase instruction. Removed the inconsistent implication that `research_ids` is required in the model's output.
+- **Why and effect**: The validator already permits research IDs to be omitted, and code may attach a matching ID after validation. This prompt-only adjustment matches the existing contract; research requirements, optional IDs, accepted trades, and mandatory-trade behavior are unchanged. Inference prompts change, so previously collected training examples contain the prior wording; existing data and notebook outputs were preserved.
+- **Validation**: All 53 offline tests passed, including a check that both prompts use the same example and a researched trade without an explicit ID is accepted. Verified that unrelated notebook cells, metadata, and outputs are unchanged. No real-model inference, orders, or trading loop were run.
