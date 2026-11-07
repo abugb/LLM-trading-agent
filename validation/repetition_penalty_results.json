@@ -1,0 +1,1190 @@
+{
+  "design": {
+    "contexts": 24,
+    "generations": 48,
+    "penalties": [
+      1.1,
+      1.0
+    ],
+    "max_new_tokens": 320,
+    "temperature": 0.7,
+    "top_p": 0.9,
+    "top_k": 20,
+    "note": "Identical recorded decision messages, seed and sampling settings in each pair; only repetition_penalty varies. One attempt; no retries or research regeneration. Synthetic evidence. No training writes or broker calls."
+  },
+  "notebook_sha256": "e11260ed6ed05f375ce20e84e03dd938000530afbc4b4543314b7467faa468bf",
+  "fixture_sha256": "10cd0f7ffd181fe7d6962240d694091ac0dd6da6a827137bdaf5aae1b1845ac2",
+  "environment": {
+    "torch": "2.6.0+cu124",
+    "transformers": "5.22.1",
+    "gpu": "NVIDIA GeForce RTX 3060 Ti"
+  },
+  "samples": [
+    {
+      "case": "cash_only",
+      "seed": 7,
+      "arm": "positive",
+      "penalty": 1.1,
+      "seconds": 0.7266745999804698,
+      "input_tokens": 1008,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "56bbd5bcd3680e8f7e5c5ca81acfee5fe81a55e43744a7c122dcac2ca8d941a9",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "cash_only",
+      "seed": 7,
+      "arm": "positive",
+      "penalty": 1.0,
+      "seconds": 0.2257132999948226,
+      "input_tokens": 1008,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "56bbd5bcd3680e8f7e5c5ca81acfee5fe81a55e43744a7c122dcac2ca8d941a9",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "cash_only",
+      "seed": 7,
+      "arm": "negative",
+      "penalty": 1.1,
+      "seconds": 0.22375319997081533,
+      "input_tokens": 1006,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "0575ab074f68785cb52dd8f826aa2fcd78a0eb7a9c59a05c04e23d4e3406b919",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "cash_only",
+      "seed": 7,
+      "arm": "negative",
+      "penalty": 1.0,
+      "seconds": 0.2317252999637276,
+      "input_tokens": 1006,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "0575ab074f68785cb52dd8f826aa2fcd78a0eb7a9c59a05c04e23d4e3406b919",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "cash_only",
+      "seed": 17,
+      "arm": "positive",
+      "penalty": 1.1,
+      "seconds": 0.34693369996966794,
+      "input_tokens": 1288,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "42c902ee32436206a173344bf65c242b5d3561c0a39b9d3121077fc894cff546",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "cash_only",
+      "seed": 17,
+      "arm": "positive",
+      "penalty": 1.0,
+      "seconds": 0.32298489997629076,
+      "input_tokens": 1288,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "42c902ee32436206a173344bf65c242b5d3561c0a39b9d3121077fc894cff546",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "cash_only",
+      "seed": 17,
+      "arm": "negative",
+      "penalty": 1.1,
+      "seconds": 0.3344731999677606,
+      "input_tokens": 1302,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "17926c8623b4a51f9b78a18ba9059c2bec8050cee5f9be2ae003dbc29dc27df9",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "cash_only",
+      "seed": 17,
+      "arm": "negative",
+      "penalty": 1.0,
+      "seconds": 0.3329972999636084,
+      "input_tokens": 1302,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "17926c8623b4a51f9b78a18ba9059c2bec8050cee5f9be2ae003dbc29dc27df9",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "cash_only",
+      "seed": 29,
+      "arm": "positive",
+      "penalty": 1.1,
+      "seconds": 0.23533870000392199,
+      "input_tokens": 1008,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "56bbd5bcd3680e8f7e5c5ca81acfee5fe81a55e43744a7c122dcac2ca8d941a9",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "cash_only",
+      "seed": 29,
+      "arm": "positive",
+      "penalty": 1.0,
+      "seconds": 0.25176830001873896,
+      "input_tokens": 1008,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "56bbd5bcd3680e8f7e5c5ca81acfee5fe81a55e43744a7c122dcac2ca8d941a9",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "cash_only",
+      "seed": 29,
+      "arm": "negative",
+      "penalty": 1.1,
+      "seconds": 0.2569449999718927,
+      "input_tokens": 1006,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "0575ab074f68785cb52dd8f826aa2fcd78a0eb7a9c59a05c04e23d4e3406b919",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "cash_only",
+      "seed": 29,
+      "arm": "negative",
+      "penalty": 1.0,
+      "seconds": 0.275765800033696,
+      "input_tokens": 1006,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "0575ab074f68785cb52dd8f826aa2fcd78a0eb7a9c59a05c04e23d4e3406b919",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "concentrated_holding",
+      "seed": 7,
+      "arm": "positive",
+      "penalty": 1.1,
+      "seconds": 0.3989240000373684,
+      "input_tokens": 1043,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "75d67b3f6938d516034a3ff095352f5316d334253cea8224a5f9c950b2195b90",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "concentrated_holding",
+      "seed": 7,
+      "arm": "positive",
+      "penalty": 1.0,
+      "seconds": 0.4232495999895036,
+      "input_tokens": 1043,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "75d67b3f6938d516034a3ff095352f5316d334253cea8224a5f9c950b2195b90",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "concentrated_holding",
+      "seed": 7,
+      "arm": "negative",
+      "penalty": 1.1,
+      "seconds": 0.4830925000132993,
+      "input_tokens": 1041,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "84f3ddbf87e8ab0c054783064b022782f21a700d10e6daee0c6b3fafb5bbfcfd",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "concentrated_holding",
+      "seed": 7,
+      "arm": "negative",
+      "penalty": 1.0,
+      "seconds": 0.49124960001790896,
+      "input_tokens": 1041,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "84f3ddbf87e8ab0c054783064b022782f21a700d10e6daee0c6b3fafb5bbfcfd",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "concentrated_holding",
+      "seed": 17,
+      "arm": "positive",
+      "penalty": 1.1,
+      "seconds": 0.6127208999823779,
+      "input_tokens": 1323,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "515551347979db53247b0bac74eedd202e2f2fc8fd858bcd7a166b777e7121fd",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "concentrated_holding",
+      "seed": 17,
+      "arm": "positive",
+      "penalty": 1.0,
+      "seconds": 0.5765691999695264,
+      "input_tokens": 1323,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "515551347979db53247b0bac74eedd202e2f2fc8fd858bcd7a166b777e7121fd",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "concentrated_holding",
+      "seed": 17,
+      "arm": "negative",
+      "penalty": 1.1,
+      "seconds": 0.574455099995248,
+      "input_tokens": 1337,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "061c3727d7c91aa6250fca61a65ea1b6782981ccc763df4d32e060145418a73f",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "concentrated_holding",
+      "seed": 17,
+      "arm": "negative",
+      "penalty": 1.0,
+      "seconds": 0.5527082000044174,
+      "input_tokens": 1337,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "061c3727d7c91aa6250fca61a65ea1b6782981ccc763df4d32e060145418a73f",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "concentrated_holding",
+      "seed": 29,
+      "arm": "positive",
+      "penalty": 1.1,
+      "seconds": 0.43956440000329167,
+      "input_tokens": 1043,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "75d67b3f6938d516034a3ff095352f5316d334253cea8224a5f9c950b2195b90",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "concentrated_holding",
+      "seed": 29,
+      "arm": "positive",
+      "penalty": 1.0,
+      "seconds": 0.447743900003843,
+      "input_tokens": 1043,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "75d67b3f6938d516034a3ff095352f5316d334253cea8224a5f9c950b2195b90",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "concentrated_holding",
+      "seed": 29,
+      "arm": "negative",
+      "penalty": 1.1,
+      "seconds": 0.46071289997780696,
+      "input_tokens": 1041,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "84f3ddbf87e8ab0c054783064b022782f21a700d10e6daee0c6b3fafb5bbfcfd",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "concentrated_holding",
+      "seed": 29,
+      "arm": "negative",
+      "penalty": 1.0,
+      "seconds": 0.442049200006295,
+      "input_tokens": 1041,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "84f3ddbf87e8ab0c054783064b022782f21a700d10e6daee0c6b3fafb5bbfcfd",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "cash_constrained",
+      "seed": 7,
+      "arm": "positive",
+      "penalty": 1.1,
+      "seconds": 0.44143190002068877,
+      "input_tokens": 1038,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "0f1b758ca39caada01c529ddcbdf3c67c853d7aa4f254752965a0ddabe5677ac",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "cash_constrained",
+      "seed": 7,
+      "arm": "positive",
+      "penalty": 1.0,
+      "seconds": 0.4449153000023216,
+      "input_tokens": 1038,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "0f1b758ca39caada01c529ddcbdf3c67c853d7aa4f254752965a0ddabe5677ac",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "cash_constrained",
+      "seed": 7,
+      "arm": "negative",
+      "penalty": 1.1,
+      "seconds": 0.4328038000385277,
+      "input_tokens": 1036,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "56919c881e2ad6b4e7d1c56f506a8e9fad2056ece076cb8d1c56bfa399986e8e",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "cash_constrained",
+      "seed": 7,
+      "arm": "negative",
+      "penalty": 1.0,
+      "seconds": 0.42957370000658557,
+      "input_tokens": 1036,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "56919c881e2ad6b4e7d1c56f506a8e9fad2056ece076cb8d1c56bfa399986e8e",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "cash_constrained",
+      "seed": 17,
+      "arm": "positive",
+      "penalty": 1.1,
+      "seconds": 0.5382031000335701,
+      "input_tokens": 1318,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "552db6d56d2a7b801e701cfec65839227f4f324eaddee7cf0d0bd30b0d32fc4a",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "cash_constrained",
+      "seed": 17,
+      "arm": "positive",
+      "penalty": 1.0,
+      "seconds": 0.5198267999803647,
+      "input_tokens": 1318,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "552db6d56d2a7b801e701cfec65839227f4f324eaddee7cf0d0bd30b0d32fc4a",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "cash_constrained",
+      "seed": 17,
+      "arm": "negative",
+      "penalty": 1.1,
+      "seconds": 0.5043252999894321,
+      "input_tokens": 1332,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "e22e3efba9f1dea9fc02fed7f640c748e0d84790725a8dcf01c9839ed833bd25",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "cash_constrained",
+      "seed": 17,
+      "arm": "negative",
+      "penalty": 1.0,
+      "seconds": 0.49408540001604706,
+      "input_tokens": 1332,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "e22e3efba9f1dea9fc02fed7f640c748e0d84790725a8dcf01c9839ed833bd25",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "cash_constrained",
+      "seed": 29,
+      "arm": "positive",
+      "penalty": 1.1,
+      "seconds": 0.4177144000423141,
+      "input_tokens": 1038,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "0f1b758ca39caada01c529ddcbdf3c67c853d7aa4f254752965a0ddabe5677ac",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "cash_constrained",
+      "seed": 29,
+      "arm": "positive",
+      "penalty": 1.0,
+      "seconds": 0.42695090000052005,
+      "input_tokens": 1038,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "0f1b758ca39caada01c529ddcbdf3c67c853d7aa4f254752965a0ddabe5677ac",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "cash_constrained",
+      "seed": 29,
+      "arm": "negative",
+      "penalty": 1.1,
+      "seconds": 0.42987880000146106,
+      "input_tokens": 1036,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "56919c881e2ad6b4e7d1c56f506a8e9fad2056ece076cb8d1c56bfa399986e8e",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "cash_constrained",
+      "seed": 29,
+      "arm": "negative",
+      "penalty": 1.0,
+      "seconds": 0.4105928000062704,
+      "input_tokens": 1036,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "56919c881e2ad6b4e7d1c56f506a8e9fad2056ece076cb8d1c56bfa399986e8e",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "diversified_holdings",
+      "seed": 7,
+      "arm": "positive",
+      "penalty": 1.1,
+      "seconds": 0.4362441999837756,
+      "input_tokens": 1114,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "94693973a7bc3db6bbb43b2972a7bef958e7947b2066a4a2b3f1ab8fed6ff59c",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "diversified_holdings",
+      "seed": 7,
+      "arm": "positive",
+      "penalty": 1.0,
+      "seconds": 0.44415250001475215,
+      "input_tokens": 1114,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "94693973a7bc3db6bbb43b2972a7bef958e7947b2066a4a2b3f1ab8fed6ff59c",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "diversified_holdings",
+      "seed": 7,
+      "arm": "negative",
+      "penalty": 1.1,
+      "seconds": 0.4356855000369251,
+      "input_tokens": 1112,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "4f9daa40f980307694daa68b3b436b8cc7cab424ffa0685bd725d50b0d7cecd9",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "diversified_holdings",
+      "seed": 7,
+      "arm": "negative",
+      "penalty": 1.0,
+      "seconds": 0.43926230003125966,
+      "input_tokens": 1112,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "4f9daa40f980307694daa68b3b436b8cc7cab424ffa0685bd725d50b0d7cecd9",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "diversified_holdings",
+      "seed": 17,
+      "arm": "positive",
+      "penalty": 1.1,
+      "seconds": 0.5639505999861285,
+      "input_tokens": 1394,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "de111da8ddb1fead2b1c468d06cfcccb20c6cc0bcc7c94d7030c8476234ee603",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "diversified_holdings",
+      "seed": 17,
+      "arm": "positive",
+      "penalty": 1.0,
+      "seconds": 0.5771866999566555,
+      "input_tokens": 1394,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "de111da8ddb1fead2b1c468d06cfcccb20c6cc0bcc7c94d7030c8476234ee603",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "diversified_holdings",
+      "seed": 17,
+      "arm": "negative",
+      "penalty": 1.1,
+      "seconds": 0.5630082000279799,
+      "input_tokens": 1408,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "16f2a4887614d6fc128cbf27e941bc04be3adfc486569a9c80bb41600f11f50c",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "diversified_holdings",
+      "seed": 17,
+      "arm": "negative",
+      "penalty": 1.0,
+      "seconds": 0.5574282999732532,
+      "input_tokens": 1408,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "16f2a4887614d6fc128cbf27e941bc04be3adfc486569a9c80bb41600f11f50c",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "diversified_holdings",
+      "seed": 29,
+      "arm": "positive",
+      "penalty": 1.1,
+      "seconds": 0.4555512999650091,
+      "input_tokens": 1114,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "94693973a7bc3db6bbb43b2972a7bef958e7947b2066a4a2b3f1ab8fed6ff59c",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "diversified_holdings",
+      "seed": 29,
+      "arm": "positive",
+      "penalty": 1.0,
+      "seconds": 0.4579344000085257,
+      "input_tokens": 1114,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "94693973a7bc3db6bbb43b2972a7bef958e7947b2066a4a2b3f1ab8fed6ff59c",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "diversified_holdings",
+      "seed": 29,
+      "arm": "negative",
+      "penalty": 1.1,
+      "seconds": 0.444554399990011,
+      "input_tokens": 1112,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "4f9daa40f980307694daa68b3b436b8cc7cab424ffa0685bd725d50b0d7cecd9",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    },
+    {
+      "case": "diversified_holdings",
+      "seed": 29,
+      "arm": "negative",
+      "penalty": 1.0,
+      "seconds": 0.43325040000490844,
+      "input_tokens": 1112,
+      "output_tokens": 2,
+      "token_ids": [
+        1294,
+        151645
+      ],
+      "raw_response": "[]<|im_end|>",
+      "response": "[]",
+      "prompt_sha256": "4f9daa40f980307694daa68b3b436b8cc7cab424ffa0685bd725d50b0d7cecd9",
+      "cap_hit": false,
+      "status": "no_trade",
+      "trades": [],
+      "simulated_fills": []
+    }
+  ],
+  "summary": {
+    "1.1": {
+      "statuses": {
+        "no_trade": 24
+      },
+      "caps": 0,
+      "median_seconds": 0.4404981500119902,
+      "max_seconds": 0.7266745999804698,
+      "output_tokens_range": [
+        2,
+        2
+      ],
+      "trade_proposals": 0,
+      "simulated_fills": 0,
+      "valid_evidence_pairs": 12,
+      "changed_trade_pairs": 0,
+      "pairs": [
+        {
+          "case": "cash_only",
+          "seed": 7,
+          "both_valid": true,
+          "changed_trade_decision": false,
+          "different_raw_output": false
+        },
+        {
+          "case": "cash_only",
+          "seed": 17,
+          "both_valid": true,
+          "changed_trade_decision": false,
+          "different_raw_output": false
+        },
+        {
+          "case": "cash_only",
+          "seed": 29,
+          "both_valid": true,
+          "changed_trade_decision": false,
+          "different_raw_output": false
+        },
+        {
+          "case": "concentrated_holding",
+          "seed": 7,
+          "both_valid": true,
+          "changed_trade_decision": false,
+          "different_raw_output": false
+        },
+        {
+          "case": "concentrated_holding",
+          "seed": 17,
+          "both_valid": true,
+          "changed_trade_decision": false,
+          "different_raw_output": false
+        },
+        {
+          "case": "concentrated_holding",
+          "seed": 29,
+          "both_valid": true,
+          "changed_trade_decision": false,
+          "different_raw_output": false
+        },
+        {
+          "case": "cash_constrained",
+          "seed": 7,
+          "both_valid": true,
+          "changed_trade_decision": false,
+          "different_raw_output": false
+        },
+        {
+          "case": "cash_constrained",
+          "seed": 17,
+          "both_valid": true,
+          "changed_trade_decision": false,
+          "different_raw_output": false
+        },
+        {
+          "case": "cash_constrained",
+          "seed": 29,
+          "both_valid": true,
+          "changed_trade_decision": false,
+          "different_raw_output": false
+        },
+        {
+          "case": "diversified_holdings",
+          "seed": 7,
+          "both_valid": true,
+          "changed_trade_decision": false,
+          "different_raw_output": false
+        },
+        {
+          "case": "diversified_holdings",
+          "seed": 17,
+          "both_valid": true,
+          "changed_trade_decision": false,
+          "different_raw_output": false
+        },
+        {
+          "case": "diversified_holdings",
+          "seed": 29,
+          "both_valid": true,
+          "changed_trade_decision": false,
+          "different_raw_output": false
+        }
+      ]
+    },
+    "1.0": {
+      "statuses": {
+        "no_trade": 24
+      },
+      "caps": 0,
+      "median_seconds": 0.4406557500187773,
+      "max_seconds": 0.5771866999566555,
+      "output_tokens_range": [
+        2,
+        2
+      ],
+      "trade_proposals": 0,
+      "simulated_fills": 0,
+      "valid_evidence_pairs": 12,
+      "changed_trade_pairs": 0,
+      "pairs": [
+        {
+          "case": "cash_only",
+          "seed": 7,
+          "both_valid": true,
+          "changed_trade_decision": false,
+          "different_raw_output": false
+        },
+        {
+          "case": "cash_only",
+          "seed": 17,
+          "both_valid": true,
+          "changed_trade_decision": false,
+          "different_raw_output": false
+        },
+        {
+          "case": "cash_only",
+          "seed": 29,
+          "both_valid": true,
+          "changed_trade_decision": false,
+          "different_raw_output": false
+        },
+        {
+          "case": "concentrated_holding",
+          "seed": 7,
+          "both_valid": true,
+          "changed_trade_decision": false,
+          "different_raw_output": false
+        },
+        {
+          "case": "concentrated_holding",
+          "seed": 17,
+          "both_valid": true,
+          "changed_trade_decision": false,
+          "different_raw_output": false
+        },
+        {
+          "case": "concentrated_holding",
+          "seed": 29,
+          "both_valid": true,
+          "changed_trade_decision": false,
+          "different_raw_output": false
+        },
+        {
+          "case": "cash_constrained",
+          "seed": 7,
+          "both_valid": true,
+          "changed_trade_decision": false,
+          "different_raw_output": false
+        },
+        {
+          "case": "cash_constrained",
+          "seed": 17,
+          "both_valid": true,
+          "changed_trade_decision": false,
+          "different_raw_output": false
+        },
+        {
+          "case": "cash_constrained",
+          "seed": 29,
+          "both_valid": true,
+          "changed_trade_decision": false,
+          "different_raw_output": false
+        },
+        {
+          "case": "diversified_holdings",
+          "seed": 7,
+          "both_valid": true,
+          "changed_trade_decision": false,
+          "different_raw_output": false
+        },
+        {
+          "case": "diversified_holdings",
+          "seed": 17,
+          "both_valid": true,
+          "changed_trade_decision": false,
+          "different_raw_output": false
+        },
+        {
+          "case": "diversified_holdings",
+          "seed": 29,
+          "both_valid": true,
+          "changed_trade_decision": false,
+          "different_raw_output": false
+        }
+      ]
+    }
+  }
+}

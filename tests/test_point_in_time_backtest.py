@@ -1,7 +1,9 @@
 """Isolated point-in-time checks; no broker, model, or network calls."""
 import ast
+from contextlib import redirect_stdout
 import datetime
 import hashlib
+import io
 import json
 import os
 from pathlib import Path
@@ -167,7 +169,12 @@ class PointInTimeTests(unittest.TestCase):
             def log(self, *args): self.logged.append(args); return len(self.logged)-1
             def update_outcome(self, idx, equity): self.outcomes.append((idx, equity))
         collector = Collector()
-        result = ns["run_backtest"](None, None, collector=collector, n_days=3, initial_cash=150, verbose=False)
+        log = io.StringIO()
+        with redirect_stdout(log):
+            result = ns["run_backtest"](None, None, collector=collector, n_days=3, initial_cash=150, verbose=True)
+        self.assertIn("[Backtest setup] Loading historical bars", log.getvalue())
+        self.assertIn("[Session 1/3] 2024-11-27: starting", log.getvalue())
+        self.assertEqual(len(re.findall(r"Session: \d+\.\d+s", log.getvalue())), 3)
         self.assertEqual(result["trades"][0]["date"], days[1])
         self.assertEqual((result["trades"][0]["qty"], result["trades"][0]["requested_qty"]), (1, 2))
         self.assertEqual(result["final_equity"], 155)
@@ -184,6 +191,31 @@ class PointInTimeTests(unittest.TestCase):
         portfolio.execute({"action": "buy", "symbol": "AAPL", "qty": 1}, {"AAPL": 100})
         self.assertIsNone(portfolio.execute({"action": "sell", "symbol": "AAPL", "qty": 2}, {"AAPL": 100}))
         self.assertEqual(portfolio.positions["AAPL"]["qty"], 1)
+
+    def test_failure_reporting_keeps_positions_and_all_valuation_days(self):
+        ns = self.ns
+        days = ['2024-11-27', '2024-11-29', '2024-12-02']
+        ns['_backtest_sessions'] = lambda *a, **kw: [(pd.Timestamp(d), pd.Timestamp(d + 'T21:00:00Z')) for d in days]
+        ns['fetch_historical_prices'] = lambda **kw: {'bars': {'AAPL': dict(zip(days, [row(100, 100), row(100, 105), row(105, 110)]))}}
+        class Outcome(tuple):
+            def __new__(cls, trades, status):
+                obj = super().__new__(cls, (trades, 'prompt', '[]', 1))
+                obj.diagnostics = {'status': status, 'failure_reason': 'decision_failed' if status == 'failed' else None,
+                                   'calls': [], 'evidence': {'R1': ['AAPL']} if trades else {},
+                                   'trade_decisions': len(trades), 'verified_reference_decisions': len(trades)}
+                return obj
+        outputs = iter([Outcome([{'symbol': 'AAPL', 'action': 'buy', 'qty': 1}], 'traded'),
+                        Outcome([], 'failed'), Outcome([], 'no_trade')])
+        ns['llm_agent_decide'] = lambda *a, **kw: next(outputs)
+        result = ns['run_backtest'](None, None, n_days=3, initial_cash=1000, verbose=False)
+        self.assertEqual([d['equity'] for d in result['equity_history']], [1000, 1005, 1010])
+        self.assertEqual(result['final_equity'], 1010)
+        self.assertEqual(len(result['trades']), 1)
+        self.assertEqual(result['agent_quality']['failed_sessions'], 1)
+        self.assertEqual(result['agent_quality']['no_trade_sessions'], 1)
+        self.assertAlmostEqual(result['agent_quality']['failure_rate_pct'], 100 / 3)
+        self.assertEqual(result['agent_quality']['verified_reference_rate_pct'], 100)
+        self.assertEqual(result['session_diagnostics'][1]['positions'][0]['symbol'], 'AAPL')
 
     def test_missing_close_uses_prior_close_or_initial_fill(self):
         portfolio = self.ns["SimulatedPortfolio"](150)

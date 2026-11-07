@@ -1,0 +1,21 @@
+{
+  "timestamp": "2026-11-06T23:27:49.547790",
+  "n_sessions_base": 60,
+  "base_results_quality": {
+    "trade_decisions": 55,
+    "verified_reference_decisions": 55,
+    "verified_reference_rate_pct": 100.0,
+    "sessions": 60,
+    "failed_sessions": 5,
+    "failure_rate_pct": 8.333333333333334,
+    "no_trade_sessions": 0,
+    "no_trade_rate_pct": 0.0,
+    "trade_sessions_with_verified_references": 55,
+    "cap_hits": 0,
+    "corrected_decision_sessions": 25
+  },
+  "base_results_return": -0.03425999999999476,
+  "base_trades_count": 48,
+  "good_examples": 13,
+  "bad_examples": 16
+}

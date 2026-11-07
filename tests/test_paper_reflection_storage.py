@@ -22,7 +22,7 @@ def load_definitions():
         (17, {"verify_paper_account"}),
         (56, {"ReflectionPersistenceError", "PendingReflectionStore"}),
     ):
-        source = "".join(notebook["cells"][index]["source"])
+        source = next("".join(c["source"]) for c in notebook["cells"] if c["cell_type"] == "code" and all(("def " + name + "(") in "".join(c["source"]) or ("class " + name) in "".join(c["source"]) for name in names))
         tree = ast.parse(source, filename=f"main.ipynb cell {index}")
         definitions = [node for node in tree.body if isinstance(node, (ast.FunctionDef, ast.ClassDef)) and node.name in names]
         if {node.name for node in definitions} != names:
@@ -62,7 +62,7 @@ class PaperGuardTests(unittest.TestCase):
                 verify(paper)
 
     def test_changed_cells_parse(self):
-        for index in (9, 17, 56):
+        for index in (9, 17, next(i for i, c in enumerate(self.notebook["cells"]) if "class PendingReflectionStore" in "".join(c["source"]))):
             ast.parse("".join(self.notebook["cells"][index]["source"]), filename=f"cell {index}")
 
 

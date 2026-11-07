@@ -23,11 +23,11 @@ The model chooses what to investigate and what trades to propose. Python handles
 
 The configured model is Qwen2.5-1.5B-Instruct. It receives an account snapshot and a description of the tools it can call. It can also receive additional market context and lessons retrieved from past trades.
 
-A tool is a Python function exposed to the model. For example, the model might request Apple's recent news. The program recognizes that request, calls the news function, and adds its result to the conversation. The model can then request another tool or produce its final decisions.
+A tool is a Python function exposed to the model. For example, the model might request Apple's recent news. The program recognizes that request, calls the news function, and adds its result to the conversation. After the first usable result, the engine moves to the decision phase. Failed or unavailable requests can be retried, but this bounded workflow does not gather several successful tools in one episode.
 
-This research loop has a turn limit so it cannot continue indefinitely. The model's final response is structured data containing the stock, action, and number of shares. The program parses that response and checks it before passing it to an executor.
+Each phase allows one attempt and up to two retries, within six generations overall. Research gets 180 new tokens per call and decisions get 320. The model proposes a JSON array containing buy/sell trades with symbol and quantity (and optional research IDs), requiring at least one BUY or SELL per day. Omitted holdings stay unchanged; empty arrays `[]` are invalid and rejected.
 
-The current prompt strongly encourages activity: it tells the model to use a tool and make at least one buy or sell decision. These are prompt instructions, not guarantees. The validation code can still return a hold decision when an output is unusable.
+Research is mandatory before any decision is accepted, but the agent is permitted to trade any stock in the permitted universe (`allowed_symbols`), including stocks it did not directly query during the research phase. Decisions without research or with empty proposals are rejected and retried with transient correction messages.
 
 ## Where the information comes from
 
@@ -47,7 +47,7 @@ Both technical indicators (RSI and MACD) are calculated locally from yfinance pr
 
 ## What happens to a proposed trade
 
-The decision validator checks basic requirements, such as whether the stock is on the allowed list and whether the share count is a positive integer. `MAX_TRADE_VALUE` sets a $5,000 estimated value limit for each buy or sell. Quantities are reduced to whole shares that fit the limit; decisions without a usable price or where one share exceeds the limit become holds. Accepted buy and sell decisions are normalized to market orders.
+The decision validator checks basic requirements, such as whether the stock is on the allowed list and whether the share count is a positive integer. `MAX_TRADE_VALUE` sets a $5,000 estimated value limit for each buy or sell. Quantities are reduced to whole shares that fit the limit. A decision without a usable price, or where one share exceeds the limit, is rejected and can be retried within the decision budget. Accepted buy and sell decisions are normalized to market orders.
 
 There are two execution paths:
 
@@ -91,7 +91,7 @@ Memory changes the information the model sees; it does not retrain the model. Th
 
 ### Fine-tuning: training on recorded examples
 
-Backtests collect the model's conversations and decisions. The collector keeps episodes that used tools and proposed valid buy or sell actions, then associates them with later changes in portfolio value.
+Backtests collect the model's conversations and decisions. The collector keeps clean final-decision episodes that used tools and proposed valid buy or sell actions, then associates them with later changes in portfolio value. Failed episodes, intentional no-trade decisions, and final decisions produced with a correction prompt are excluded. Current-run counters report these exclusions. This selects for episodes handled without decision-phase help and can bias the training data toward easier cases.
 
 The default labeling rule marks an eligible episode “good” when its recorded profit is zero or positive, and “bad” when it is negative. The training code uses the good examples to teach the model to reproduce those final decisions. This is supervised fine-tuning, or SFT.
 
@@ -122,3 +122,21 @@ The backtest is useful for inspecting the agent's behavior and exercising the tr
 | Task 5 | The trading loop connecting research, decisions, order submission, and reflection. |
 
 Downloaded data, training examples, model adapters, and logs can all live under `CACHE_DIR`. They serve different purposes: downloaded data avoids repeated requests, training examples support fine-tuning, memory stores lessons, and logs record what happened. Despite the folder's name, it contains more than disposable cached downloads.
+
+The decision engine, reflection prompt, and model smoke test use the configured tokenizer's chat template for message boundaries. Decision conversations include dispatched tool responses in the template; training examples collected before this change retain their earlier format and should be recollected before fine-tuning. Correct formatting alone does not guarantee reliable tool use.
+
+The engine prefills the start of a tool call; the model supplies the tool name and arguments. This encourages tool use without guaranteeing valid output. Calls are validated before dispatch. Generation stops on the closing tool tag or EOS. If EOS follows complete tool-call JSON but omits the closing tag, only that tag is restored; incomplete JSON, extra text, and invalid arguments still fail. The reconstructed assistant turn is used in both inference and collected training prompts.
+
+Rejected outputs are discarded. A retry uses the same clean history plus one replacement correction message; corrections do not accumulate. Research corrections disappear before the decision phase. A corrected final decision may execute if valid, but it is excluded from SFT. Dataset preparation checks that each stored prompt exactly matches the chat template applied to its saved messages, checks the trades-only completion and research references, and masks only the prompt. Legacy, tampered, or overlength examples are dropped with counts instead of silently truncating the completion. Recollect examples for the new contract.
+
+Tool context is limited by tokens and complete records, replacing the old 3,000-character slice. Price history includes its requested range and an omission note first, followed by the newest complete rows in chronological order, with the latest row last. News retains complete articles and labels omissions. Generation logs show phase, elapsed time, token counts, cap hits, parse status on rejection, and component token counts. Tool logs report raw and supplied context tokens. Raw token IDs and text are available through `debug_tokens=True` for validation.
+
+Backtest setup and every session report progress. Results retain the existing equity, trade, return, estimated-valuation and unfilled-order fields, and add `session_diagnostics` and `agent_quality`. Quality metrics distinguish failed sessions from researched no-trade sessions, count cap hits and corrected decisions, and report verified references among accepted trades. A failed session submits no new orders but retains holdings and its valuation date, so equity can still move. No dates are removed from evaluation, and labeling rules and comparison periods are unchanged.
+
+The offline validation is recorded in [validation/agent_validation.md](validation/agent_validation.md). The six real-model smoke episodes passed the runtime/format gates but all chose no trades; that is not evidence of useful trading or sufficient training data. The smoke used historical market tools only, with cached data, and did not exercise live news or order submission.
+
+In full end-to-end testing with the original mandatory daily trade rule restored and compact output preserved:
+- A 5-session pilot demonstrated 80% trading rate, 0 cap hits, and sensible trades citing researched evidence.
+- A 60-session collection backtest (Task 4a) executed 48 trades across 55 trade sessions (91.7% active sessions, 100% verified reference rate, 0 cap hits, 8.3% failure rate), generating 13 'good' and 16 'bad' labeled episodes.
+- LoRA fine-tuning (Task 4c) on the 'good' episodes reduced average loss over 3 epochs and produced an adapter.
+- In the 20-session comparison backtest, the fine-tuned model achieved a return of -0.01% with 12 trades, outperforming the base model (-0.42% return with 16 trades) by +0.40%.
