@@ -121,4 +121,32 @@ class ResearchTests(unittest.TestCase):
         ns, tok, model = setup([])
         with self.assertRaises(ValueError): ns['llm_agent_decide'](tok, model, {}, max_turns=1)
 
+    def test_selling_unheld_stock_is_rejected_and_held_sell_succeeds(self):
+        # 1. Unheld sell is rejected, triggers correction, and corrects to valid buy
+        ns, tok, model = setup([tool(), decision([{'symbol': 'MSFT', 'action': 'sell', 'qty': 1}]), decision([{'symbol': 'MSFT', 'action': 'buy', 'qty': 1}])])
+        with redirect_stdout(io.StringIO()):
+            res = ns['llm_agent_decide'](tok, model, {'cash': 1000, 'positions': [{'symbol': 'AAPL', 'qty': 2}]})
+        self.assertEqual(res.diagnostics['status'], 'traded')
+        self.assertTrue(res.diagnostics['corrected_decision'])
+        self.assertEqual(res[0][0]['action'], 'buy')
+        self.assertIn('Cannot SELL MSFT: you hold 0 shares', model.prompts[-1])
+
+        # 2. Held sell within quantity succeeds directly
+        ns2, tok2, model2 = setup([tool(), decision([{'symbol': 'AAPL', 'action': 'sell', 'qty': 2}])])
+        with redirect_stdout(io.StringIO()):
+            res2 = ns['llm_agent_decide'](tok2, model2, {'cash': 1000, 'positions': [{'symbol': 'AAPL', 'qty': 2}]})
+        self.assertEqual(res2.diagnostics['status'], 'traded')
+        self.assertFalse(res2.diagnostics['corrected_decision'])
+        self.assertEqual(res2[0][0]['action'], 'sell')
+        self.assertEqual(res2[0][0]['qty'], 2)
+
+        # 3. Excess sell quantity is rejected
+        ns3, tok3, model3 = setup([tool(), decision([{'symbol': 'AAPL', 'action': 'sell', 'qty': 5}]), decision([{'symbol': 'AAPL', 'action': 'sell', 'qty': 2}])])
+        with redirect_stdout(io.StringIO()):
+            res3 = ns['llm_agent_decide'](tok3, model3, {'cash': 1000, 'positions': [{'symbol': 'AAPL', 'qty': 2}]})
+        self.assertEqual(res3.diagnostics['status'], 'traded')
+        self.assertTrue(res3.diagnostics['corrected_decision'])
+        self.assertEqual(res3[0][0]['qty'], 2)
+        self.assertIn('Cannot SELL 5 shares of AAPL: you only hold 2 shares', model3.prompts[-1])
+
 if __name__ == '__main__': unittest.main()

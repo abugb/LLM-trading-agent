@@ -47,7 +47,7 @@ Both technical indicators (RSI and MACD) are calculated locally from yfinance pr
 
 ## What happens to a proposed trade
 
-The decision validator checks basic requirements, such as whether the stock is on the allowed list and whether the share count is a positive integer. `MAX_TRADE_VALUE` sets a $5,000 estimated value limit for each buy or sell. Quantities are reduced to whole shares that fit the limit. A decision without a usable price, or where one share exceeds the limit, is rejected and can be retried within the decision budget. Accepted buy and sell decisions are normalized to market orders.
+The decision validator checks basic requirements, such as whether the stock is on the allowed list, whether the share count is a positive integer, and whether `sell` orders match existing holdings (rejecting unheld sells or quantities exceeding held shares so the agent can self-correct). `MAX_TRADE_VALUE` sets a $5,000 estimated value limit for each buy or sell. Quantities are reduced to whole shares that fit the limit. A decision without a usable price, or where one share exceeds the limit, is rejected and can be retried within the decision budget. Accepted buy and sell decisions are normalized to market orders.
 
 There are two execution paths:
 
@@ -85,7 +85,9 @@ The model writes a concise reflection on the trade's execution and lesson learne
 
 Pending reflections are saved under `CACHE_DIR` in a file scoped to the verified paper account. Their deadlines use elapsed seconds (`REFLECTION_DELAY_LOOPS * LOOP_SECONDS`), so a later run can resume them after a kernel restart. Queue updates use atomic replacement, and an order already recorded in memory is not reflected twice after a restart. Only one loop should use a given account's queue at a time. An interruption between broker acceptance and saving the returned order ID can still leave an order without a pending reflection; check broker orders after an interrupted submission.
 
-For a later decision, a keyword-ranking method called BM25 finds similar past situations. Their reflections are included in the model's prompt. This approach is called retrieval-augmented generation, or RAG.
+For a later decision, a local sentence-transformer embeds the current situation and FAISS finds semantically similar saved situations using cosine similarity. Reflections below `MEMORY_MIN_SIMILARITY` (default 0.35) are omitted; the threshold is a starting point, not a calibrated measure of relevance. Matching reflections are included in the model's prompt. This vector retrieval implements the notebook's vector database RAG challenge in place of BM25.
+
+The existing JSON memory file remains the source of truth. Its FAISS index is rebuilt in memory on startup or after an external edit, and updated after new reflections. Embeddings use `sentence-transformers/all-MiniLM-L6-v2` on CPU; first use may download the model. Run the notebook setup cell to install `sentence-transformers` and `faiss-cpu` into the active conda kernel with `%conda`. If loading or indexing fails, the error is shown and saved reflections are preserved; retrieval does not silently fall back to BM25. Only one process should write a memory file at a time.
 
 Memory changes the information the model sees; it does not retrain the model. The storage, search, and reflection functions exist, and the decision engine accepts retrieved reflections. Task 5 connects these pieces within the repeating trading loop by queueing trades, tracking order fills, calculating trade-level P&L, and retrieving top reflections for new decisions. The loop also protects against unverified account state: if retrieving account state from Alpaca fails, the loop safely halts the iteration rather than fabricating an artificial balance.
 
@@ -117,7 +119,7 @@ The backtest is useful for inspecting the agent's behavior and exercising the tr
 |---|---|
 | Task 1 | Configuration, model loading, Alpaca access, news, tool dispatch, decision engine, data collection, and backtesting. |
 | Task 2 | Price history, RSI, MACD, quote retrieval, and combined market context. |
-| Task 3 | Persistent trading memory, keyword retrieval, and trade reflections. |
+| Task 3 | Persistent trading memory, vector retrieval, and trade reflections. |
 | Task 4 | Training-data preparation, LoRA fine-tuning, and model comparisons. |
 | Task 5 | The trading loop connecting research, decisions, order submission, and reflection. |
 

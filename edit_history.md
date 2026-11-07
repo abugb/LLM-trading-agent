@@ -240,3 +240,42 @@ This file records changes to `main.ipynb` that depart from the original provided
 - **Validation**:
   - All 43 unit tests passed across the test suite.
   - 5-session real-model backtest executed cleanly with 0 failures and 4 completed trades.
+
+
+## 2026-11-07: Holdings-Aware Decision Validation to Prevent Unheld Stock Sells
+
+- **Affected Section**: Section 1.13 Decision Engine (cell 27, `g9aer2y92q4x`) and regression test suite (`tests/test_research_requirement.py`).
+- **What Changed**:
+  - Extended `_parse_trade_decisions` to accept an optional `positions` argument (supporting both list-of-dicts and dict formats from `state["positions"]`).
+  - Added strict holdings enforcement for `sell` orders when `positions` is provided: attempting to sell an unheld stock (0 shares owned) or specifying a quantity exceeding currently held shares raises a descriptive `ValueError`.
+  - Updated `llm_agent_decide` to pass `clean_state.get("positions")` to `_parse_trade_decisions`.
+  - Updated transient decision retry corrections in `llm_agent_decide` to incorporate the specific error message into the retry prompt (e.g. `Correction: Cannot SELL MSFT: you hold 0 shares...`), allowing the LLM to understand why its proposed decision failed and adjust to a valid trade on its retry turn.
+  - Added unit tests in `tests/test_research_requirement.py` covering rejection of unheld sells with correction retries, valid sells within held quantities, and rejection of excess sell quantities.
+- **Why It Was Necessary**:
+  - The agent frequently attempted to sell universe stocks that it did not own (e.g. `MSFT:sell` when holding 0 shares). In backtesting, these orders were skipped at execution time, causing episodes to go unexecuted and leaving training episodes unlabelled with `P&L: pending`. In paper trading, submitting unheld sells risks unwanted short positions or broker order rejections.
+- **Effect on Expected Behavior or Grading**:
+  - Unheld sell proposals are now caught immediately during the decision phase and self-corrected via transient retry, preventing invalid short sales from reaching the broker or simulated execution.
+  - Preserves full backward compatibility when `positions` is omitted or `None` (such as in legacy callers and `validate_sft_example`).
+  - All demonstration outputs and cell structures across Tasks 1–5 are strictly preserved.
+- **Validation**:
+  - 44/44 unit tests passed across all test suites, including dedicated tests for unheld sell rejection, self-correction, held sell execution, and excess quantity bounds.
+
+## 2026-11-07: Vector Database RAG for Trading Memory
+
+- **Affected sections**: Notebook setup (cell 3), imports (cell 5), memory configuration (cell 9, `79zv7l8yw2sr`), Task 3 instructions (cell 39, `mdm81hne0rtj`), `TradingMemory` (cell 41, `s5f0s4egxhum`), Task 3 demonstration (cell 45, `872jn44nmonz`), and memory-related Task 5 messages (cells 56, `6jats7k4qsua`, and 58). Indices are zero-based and may shift.
+- **What changed**: Replaced BM25 retrieval with the vector database challenge: CPU sentence embeddings using `sentence-transformers/all-MiniLM-L6-v2`, normalized cosine search via a FAISS `IndexFlatIP`, and a configurable minimum similarity (`MEMORY_MIN_SIMILARITY = 0.35`). The setup cell installs `sentence-transformers` and `faiss-cpu` into the notebook kernel; it does not install packages during inference. Embedding model initialization is deferred until memories must be indexed.
+- **Compatibility**: Existing JSON memories, reflection strings, optional trade context/order IDs, `add_memory`, and `get_memories` remain compatible. JSON remains the source of truth; the in-memory index is rebuilt from existing entries at initialization, after additions, and after detecting external file edits. Persistence uses atomic replacement. Missing dependencies, model/index failures, and invalid memory files are reported; saved reflections are not silently erased or overwritten. Task 5's initialization message now shows the actual memory error instead of implying Task 3 is missing.
+- **Why and grading**: This implements the notebook's vector database RAG challenge and deliberately replaces the Task 3 BM25 retrieval baseline. It may change which lessons are recalled, including returning no results below the threshold. The 0.35 cutoff is an initial, uncalibrated setting; semantic similarity does not guarantee a useful or financially appropriate lesson.
+- **Validation**: Deterministic FAISS/embedding substitutes test empty inputs, ranking, paraphrases, similarity filtering, metadata and restart compatibility, external edits, corrupt-file protection, unavailable dependencies, and failed atomic writes. All 52 offline tests passed and ordinary notebook code cells passed syntax checks. No orders, trading loop, or full notebook execution occurred. Existing notebook outputs were preserved; the saved Task 3 output predates this change and the updated demonstration must be rerun to show semantic retrieval.
+- **Unresolved environment limitation**: The active `nlp` environment currently lacks FAISS and Sentence Transformers, and MiniLM is not cached. An isolated package download attempt returned no matching distribution, so real-model retrieval and dependency/version compatibility could not be validated here. Install the packages in the notebook's active kernel and allow the initial model download before relying on semantic retrieval. The implementation reports failures rather than silently reverting to BM25.
+
+## 2026-11-07: Install Vector Memory Dependencies with Conda
+
+- **Affected section**: Initial notebook setup (cell 3). Replaced the active `%pip` installation for `sentence-transformers` and `faiss-cpu` with `%conda install -c conda-forge -y sentence-transformers faiss-cpu`, targeting the active notebook kernel's conda environment. The existing commented setup instructions and all saved outputs are preserved.
+- **Why and limitations**: The user requested a conda installation path for the vector RAG dependencies. Conda may resolve changes to other packages; inspect the terminal solver plan when installing manually. This setup cell requires a conda-backed kernel and may require a kernel restart. The model still downloads separately on first use.
+- **Validation**: Checked the saved setup cell and notebook JSON without running installation or model inference; dependency compatibility remains to be verified in the user's conda environment.
+
+## 2026-11-07: Avoid Authenticated Channels in Vector Dependency Setup
+
+- **Affected section**: Initial notebook setup (cell 3). Added `--override-channels` and the public conda-forge URL to the vector dependency install after the configured Anaconda channel returned a missing-token error. Removed automatic `-y` so the solver's proposed changes can be reviewed before installation.
+- **Validation**: Verified notebook JSON and the saved command. Installation was not run; success and compatibility with the existing environment remain unverified.
