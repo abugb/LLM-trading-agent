@@ -12,7 +12,7 @@ NOTEBOOK = Path(__file__).resolve().parents[1] / "main.ipynb"
 
 def load_definitions():
     notebook = json.loads(NOTEBOOK.read_text(encoding="utf-8"))
-    ns = {"MAX_TRADE_VALUE": 5000.0, "MAX_REFERENCE_AGE_SECONDS": 300,
+    ns = {"MAX_TRADE_VALUE": 10000.0, "MAX_REFERENCE_AGE_SECONDS": 300,
           "WHITELIST": ["AAPL", "MSFT"], "datetime": datetime,
           "TradingClient": object, "Dict": Dict, "Any": Any,
           "ALPACA_API_KEY": "fake", "ALPACA_SECRET_KEY": "fake"}
@@ -30,17 +30,17 @@ class TradeValueTests(unittest.TestCase):
     def setUp(self):
         self.ns = load_definitions()
 
-    def test_caps_whole_shares_at_5000_for_buy_and_sell(self):
+    def test_caps_whole_shares_at_10000_for_buy_and_sell(self):
         validate = self.ns["_validate_decisions"]
         decisions = [{"symbol": "AAPL", "action": side, "qty": 9} for side in ("buy", "sell")]
         result = validate(decisions, {"AAPL": 1800})
-        self.assertEqual([d["qty"] for d in result], [2, 2])
-        self.assertTrue(all(d["qty"] * 1800 <= 5000 for d in result))
+        self.assertEqual([d["qty"] for d in result], [5, 5])
+        self.assertTrue(all(d["qty"] * 1800 <= 10000 for d in result))
         self.assertEqual(validate([{"symbol": "AAPL", "action": "buy", "qty": 5}], {"AAPL": 1000})[0]["qty"], 5)
 
     def test_invalid_or_missing_prices_and_quantities_fail_closed(self):
         validate = self.ns["_validate_decisions"]
-        for price in (None, 0, -1, float("nan"), float("inf"), 5001):
+        for price in (None, 0, -1, float("nan"), float("inf"), 10001):
             result = validate([{"symbol": "AAPL", "action": "buy", "qty": 1}], {"AAPL": price})
             self.assertEqual(result[0]["action"], "hold")
         for qty in (0, -1, True, 1.5, "1"):
@@ -54,7 +54,7 @@ class TradeValueTests(unittest.TestCase):
         data = {"bars": {"AAPL": {"2024-11-29": {"close": 2000}, "2024-12-02": {"close": 1}}}}
         items = [{"symbol": "AAPL", "action": "buy", "qty": 9}]
         refs = ns["_decision_reference_prices"](items, "2024-11-29T18:05:00Z", data)
-        self.assertEqual(ns["_validate_decisions"](items, refs)[0]["qty"], 2)
+        self.assertEqual(ns["_validate_decisions"](items, refs)[0]["qty"], 5)
         self.assertEqual(ns["_decision_reference_prices"](items, "2024-11-29T18:05:00Z", None), {"AAPL": None})
 
     def test_live_reference_rejects_stale_data_and_uses_highest_fresh_price(self):
@@ -79,9 +79,9 @@ class TradeValueTests(unittest.TestCase):
                                SimpleNamespace(id="fake-id", status="accepted", filled_qty="0", filled_avg_price=None))
         decision = {"symbol": "AAPL", "action": "buy", "qty": 5, "order_type": "market"}
         result = ns["submit_order"](fake, decision, expected_account_id="paper")
-        self.assertEqual(sent[0].qty, 2)
-        self.assertEqual(result["qty"], 2)
-        self.assertEqual(decision["qty"], 2)
+        self.assertEqual(sent[0].qty, 4)
+        self.assertEqual(result["qty"], 4)
+        self.assertEqual(decision["qty"], 4)
         ns["get_trade_reference_price"] = lambda symbol: None
         with self.assertRaises(ValueError):
             ns["submit_order"](fake, {"symbol": "AAPL", "action": "buy", "qty": 1, "order_type": "market"})

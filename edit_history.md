@@ -285,3 +285,38 @@ This file records changes to `main.ipynb` that depart from the original provided
 - **Affected section**: Tool registry and prompt builder (cell 23, `lgzw5cfv1i3f`). Changed its final-decision example to the same concrete `symbol`, `action`, and `qty` example used by the decision-phase instruction. Removed the inconsistent implication that `research_ids` is required in the model's output.
 - **Why and effect**: The validator already permits research IDs to be omitted, and code may attach a matching ID after validation. This prompt-only adjustment matches the existing contract; research requirements, optional IDs, accepted trades, and mandatory-trade behavior are unchanged. Inference prompts change, so previously collected training examples contain the prior wording; existing data and notebook outputs were preserved.
 - **Validation**: All 53 offline tests passed, including a check that both prompts use the same example and a researched trade without an explicit ID is accepted. Verified that unrelated notebook cells, metadata, and outputs are unchanged. No real-model inference, orders, or trading loop were run.
+
+
+## 2026-11-08: Restore Original Trading Prompt Wording
+
+- **Affected section**: Decision engine system prompt (cell 27, `g9aer2y92q4x`). Restored the original notebook's portfolio-manager role, active-trading mandates, tool-use requirement, and trading expectations. Kept the universe in account state and adapted the original final-decision instructions to the current compact buy/sell format, whole-share and $5,000 limit, and holdings validation. The original tool instructions were already present. The original reflection function was a TODO and supplied no complete prompt to restore.
+- **Why and effect**: The user requested prompts closer to the original while preserving current functionality. Research and decision phases, validation, retry behavior, simulation, reflection and SFT collection are unchanged, but model behavior and generation length may change. Previously collected examples retain their original prompt text and the existing trained adapter reflects earlier data; collect new examples before training for the updated prompt. The mandatory-trade requirement remains.
+- **Validation**: Preserved unrelated cells, metadata and all saved outputs; checked the modified cell's syntax and ran the offline tests. Model behavior and performance under the revised prompt have not been measured. No orders, trading loop, or backtest were run.
+
+
+## 2026-11-08: Generic Model-Facing Examples
+
+- **Affected sections**: Tool prompt and news tool parameters (cell 23, `lgzw5cfv1i3f`), and decision system, phase and retry prompts (cell 27, `g9aer2y92q4x`). Replaced concrete ticker and trade examples with a generic trade template and removed concrete ticker examples from the news parameter description. The generic tool-call syntax is retained.
+- **Why and effect**: Avoid repeatedly suggesting a particular security or trade while retaining the current requirements and validation. Placeholders must be replaced by actual values; model response quality and changes in decision behavior have not been measured. Existing saved examples and outputs retain their earlier wording.
+- **Validation**: Updated the prompt consistency check and ran the offline tests; preserved other cells, metadata and saved notebook outputs. No backtest, model inference or orders were run.
+
+
+## 2026-11-08: Increase Per-Trade Dollar Limit to $10,000
+
+- **Affected sections**: Configuration (cell 9) and its summary (cell 8), decision validator and portfolio state (cells 17, 23, and 31), submission sizing (cell 17), and decision instructions (cell 27). Set the shared `MAX_TRADE_VALUE` from $5,000 to $10,000. Validator, backtest, paper-order sizing, and model instructions all read the same setting. Updated `AGENT_OVERVIEW.md` and offline sizing tests.
+- **Effect**: The agent may request or submit up to twice the previous estimated dollar value per individual trade, subject to whole-share limits, available cash, current holdings, and fresh reference prices. Preserved saved notebook outputs, which still display the previous $5,000 configuration and must be refreshed by rerunning the configuration cell.
+- **Validation**: Ran trade-sizing tests against buy/sell validation, backtest reference prices, and paper submission sizing; no broker order or backtest was run.
+
+
+## 2026-11-08: Match System Prompt to Requested Wording
+
+- **Affected sections**: Tool prompt builder (cell 23) and system prompt (cell 27). Changed the tool-call instruction to ?use this EXACT FORMAT,? and retained the supplied role, mandates, tool list, generic trade template, and decision rules. The tool list remains generated from currently registered tools. The supplied $5,000 example limit is rendered from the shared `MAX_TRADE_VALUE` setting, currently $10,000, to stay consistent with validation and execution sizing.
+- **Validation**: Parsed the notebook and syntax-checked modified cells; preserved saved outputs and unrelated cells/metadata. No model inference, backtest, or broker orders were run.
+
+
+## 2026-11-08: Portfolio-Specific Decision Instructions and Rejection Logging
+
+- **Affected sections**: Tool prompt builder (cell 23, `lgzw5cfv1i3f`) and decision engine (cell 27, `g9aer2y92q4x`). Replaced repeated activity mandates with one valid-trade requirement. Removed placeholder trade JSON from system, tool, phase and correction prompts in favor of explicit field/type instructions.
+- **Action eligibility**: Added portfolio-specific text beside decision and retry requests: BUY only when no whole shares are sellable; otherwise list each held symbol and maximum sellable whole-share quantity. Missing holdings are identified as unavailable. The prompt warns that an allowed or researched ticker is not necessarily owned. Existing validators remain authoritative, and valid holdings can still be sold. The $10,000 cap and model-generated research requirement remain.
+- **Diagnostics and training**: Distinguish invalid ticker and action errors. Print complete rejected responses as escaped strings and retain them in call diagnostics. Failed responses and transient corrections still do not accumulate in inference history; corrected decisions remain excluded from SFT. Previously collected examples retain earlier prompts.
+- **Validation**: All 57 offline tests passed, including checks covering initial/retry BUY-only instructions, list/dict holdings and sell limits, invalid/fractional holdings, distinct rejection reasons, rejected-response logging, clean histories and SFT behavior. All unrelated notebook cells, metadata and saved outputs were preserved. No real-model inference, backtest or orders were run; the effect on model failure rate remains unmeasured.

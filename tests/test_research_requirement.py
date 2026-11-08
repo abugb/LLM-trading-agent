@@ -49,15 +49,55 @@ def run_case(outputs, results=None, **kwargs):
     return result, ns, tok, model
 
 class ResearchTests(unittest.TestCase):
-    def test_tool_and_decision_prompts_share_minimal_trade_example(self):
+    def test_prompts_use_field_rules_without_schema_placeholders(self):
         trade = decision([{'symbol': 'AAPL', 'action': 'buy', 'qty': 1}])
         result, ns, _, model = run_case([tool(), trade])
-        example = '[{"symbol":"AAPL","action":"buy","qty":1}]'
-        self.assertIn(example, ns['_build_tools_prompt']())
-        self.assertNotIn('research_ids', ns['_build_tools_prompt']())
-        self.assertIn(example, model.prompts[-1])
+        for prompt in [ns['_build_tools_prompt'](), model.prompts[-1]]:
+            self.assertNotIn('<TICKER>', prompt)
+            self.assertNotIn('<positive integer>', prompt)
+            self.assertIn('positive integer JSON number', prompt)
+        self.assertIn('without quotation marks', model.prompts[-1])
         self.assertEqual(result.diagnostics['status'], 'traded')
         self.assertEqual(result[0][0]['research_ids'], ['R1'])
+
+    def test_empty_holdings_restrict_initial_and_retry_prompts_to_buys(self):
+        bad = decision([{'symbol': 'MSFT', 'action': 'sell', 'qty': 1}])
+        ns, tok, model = setup([tool(), bad, decision()])
+        output = io.StringIO()
+        with redirect_stdout(output):
+            result = ns['llm_agent_decide'](tok, model, {'cash': 1000, 'positions': []})
+        for prompt in model.prompts[1:]:
+            self.assertIn('BUY orders only', prompt)
+            self.assertIn('SELL is unavailable', prompt)
+        self.assertIn('Cannot SELL MSFT', model.prompts[-1])
+        self.assertNotIn(bad, model.prompts[-1])
+        self.assertEqual(result.diagnostics['calls'][1]['rejected_response'], bad)
+        self.assertIn('[Rejected response] ', output.getvalue())
+        self.assertFalse(result.diagnostics['sft_eligible'])
+
+    def test_held_positions_expose_sell_limits_for_supported_state_formats(self):
+        for positions in [[{'symbol': 'AAPL', 'qty': 2.5}], {'AAPL': {'qty': 2.5}}, {'AAPL': 2.5}]:
+            ns, tok, model = setup([tool(), decision([{'symbol': 'AAPL', 'action': 'sell', 'qty': 2}])])
+            with redirect_stdout(io.StringIO()):
+                result = ns['llm_agent_decide'](tok, model, {'cash': 1000, 'positions': positions})
+            self.assertIn('"AAPL": 2', model.prompts[-1])
+            self.assertIn('does not mean you own it', model.prompts[-1])
+            self.assertNotIn('BUY orders only', model.prompts[-1])
+            self.assertEqual(result.diagnostics['status'], 'traded')
+
+    def test_action_context_does_not_offer_fractional_or_invalid_sells(self):
+        ns, _, _ = setup([])
+        context = ns['_decision_action_context']([
+            {'symbol': 'AAPL', 'qty': 0.5}, {'symbol': 'MSFT', 'qty': 'nan'},
+            {'symbol': 'OTHER', 'qty': 'bad'}])
+        self.assertIn('BUY orders only', context)
+
+    def test_invalid_ticker_and_action_have_distinct_errors(self):
+        ns, _, _ = setup([])
+        for item, error in [({'symbol': 'MISSING', 'action': 'buy', 'qty': 1}, 'Invalid symbol'),
+                            ({'symbol': 'AAPL', 'action': 'hold', 'qty': 1}, 'Invalid action')]:
+            with self.assertRaisesRegex(ValueError, error):
+                ns['_parse_trade_decisions'](decision([item]), ['AAPL'])
 
     def test_unresearched_empty_is_failure_not_no_trade(self):
         result, _, _, model = run_case(['[]'] * 3)

@@ -47,7 +47,7 @@ Both technical indicators (RSI and MACD) are calculated locally from yfinance pr
 
 ## What happens to a proposed trade
 
-The decision validator checks basic requirements, such as whether the stock is on the allowed list, whether the share count is a positive integer, and whether `sell` orders match existing holdings (rejecting unheld sells or quantities exceeding held shares so the agent can self-correct). `MAX_TRADE_VALUE` sets a $5,000 estimated value limit for each buy or sell. Quantities are reduced to whole shares that fit the limit. A decision without a usable price, or where one share exceeds the limit, is rejected and can be retried within the decision budget. Accepted buy and sell decisions are normalized to market orders.
+The decision validator checks basic requirements, such as whether the stock is on the allowed list, whether the share count is a positive integer, and whether `sell` orders match existing holdings (rejecting unheld sells or quantities exceeding held shares so the agent can self-correct). `MAX_TRADE_VALUE` sets a $10,000 estimated value limit for each buy or sell. Quantities are reduced to whole shares that fit the limit. A decision without a usable price, or where one share exceeds the limit, is rejected and can be retried within the decision budget. Accepted buy and sell decisions are normalized to market orders.
 
 There are two execution paths:
 
@@ -124,6 +124,8 @@ The backtest is useful for inspecting the agent's behavior and exercising the tr
 | Task 5 | The trading loop connecting research, decisions, order submission, and reflection. |
 
 Downloaded data, training examples, model adapters, and logs can all live under `CACHE_DIR`. They serve different purposes: downloaded data avoids repeated requests, training examples support fine-tuning, memory stores lessons, and logs record what happened. Despite the folder's name, it contains more than disposable cached downloads.
+
+The decision system prompt states the portfolio objective, research requirement and mandatory valid trade once. Decision and retry prompts explicitly list sellable holdings and maximum whole-share quantities; when no whole shares are sellable, they request BUY orders only. Output fields are described without placeholder JSON examples. Invalid tickers and actions have distinct rejection messages. Rejected responses are printed and retained in diagnostics, but are excluded from subsequent conversation messages.
 
 The decision engine, reflection prompt, and model smoke test use the configured tokenizer's chat template for message boundaries. Decision conversations include dispatched tool responses in the template; training examples collected before this change retain their earlier format and should be recollected before fine-tuning. Correct formatting alone does not guarantee reliable tool use.
 
